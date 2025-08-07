@@ -32,3 +32,19 @@ If you continue to experience issues:
 1. Make sure your Vercel project is configured to use the correct root directory (should be the project root, not the frontend directory)
 2. Check that your build command in Vercel settings is `npm run build` (executed in the frontend directory)
 3. Verify that your output directory in Vercel is set to `frontend/build`
+
+
+## Vercel Error Handling
+
+This project includes utilities and documentation for handling Vercel-specific errors:
+
+- [Vercel Error Codes Documentation](./docs/VERCEL_ERROR_CODES.md) - Comprehensive list of Vercel error codes with their categories and HTTP status codes
+- [Vercel Error Handler Utility](./frontend/src/utils/vercelErrorHandler.js) - Frontend utility for handling Vercel errors in React components
+
+The error handler utility provides:
+- Functions to get error information by error code
+- Helper functions to determine if an error is an application or platform error
+- User-friendly error messages for better UX
+- Integration with React state management for displaying errors
+
+For platform errors (500 status codes), contact Vercel support as they indicate issues with the Vercel platform itself.
