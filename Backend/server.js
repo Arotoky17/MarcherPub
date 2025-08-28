@@ -11,12 +11,21 @@ const PORT = process.env.PORT || 3001;
 
 // Sécurité + logs + parsing
 app.use(helmet());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://marcher-pub-2y3i.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',  // Développement local
-    'https://marcher-pub-2y3i.vercel.app',  // Votre frontend Vercel
-    process.env.FRONTEND_URL  // Variable d'environnement additionnelle
-  ].filter(Boolean), // Enlève les valeurs undefined
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
