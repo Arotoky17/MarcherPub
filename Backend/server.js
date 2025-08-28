@@ -12,8 +12,14 @@ const PORT = process.env.PORT || 3001;
 // Sécurité + logs + parsing
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', 
-  credentials: true
+  origin: [
+    'http://localhost:3000',  // Développement local
+    'https://marcher-pub-2y3i.vercel.app',  // Votre frontend Vercel
+    process.env.FRONTEND_URL  // Variable d'environnement additionnelle
+  ].filter(Boolean), // Enlève les valeurs undefined
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('dev'));
 app.use(express.json());
