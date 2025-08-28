@@ -38,6 +38,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 console.log('📁 Fichiers statiques uploads configurés sur /uploads');
 
+// Servir le favicon si demandé au backend
+app.use('/favicon.ico', express.static('favicon.ico'));
+
 // Importation des modèles Sequelize
 const db = require('./models');
 const { User, Offer, sequelize } = db;
