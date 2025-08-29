@@ -2,9 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { FaBullseye, FaFileAlt, FaUsers, FaSearch, FaHandshake, FaChartLine, FaGlobe } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
 import { motion } from 'framer-motion';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import Navbar from '../../Components/Navbar';
+
+// API_BASE_URL doit pointer vers le backend,
+const API_BASE_URL = 'https://ton-backend-render-url.onrender.com'; // Remplace par ton vrai lien Render
 
 // Animations
 const container = {
@@ -44,7 +48,8 @@ const Home = () => {
   useEffect(() => {
     const fetchPublishedOffers = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/offres/publiees');
+        // Remplace l'URL locale par l'URL Render :
+        const response = await axios.get(`${API_BASE_URL}/api/offres/publiees`);
         setOffers(response.data);
       } catch (error) {
         console.error("Erreur lors du chargement des offres", error);
