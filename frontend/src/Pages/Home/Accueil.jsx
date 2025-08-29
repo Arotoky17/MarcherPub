@@ -105,7 +105,7 @@ const Home = () => {
             variants={slideUp}
             className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg"
           >
-            Plateforme des Marchés Publics
+            Plateforme des Marchés Publiques
           </motion.h1>
           <motion.p 
             variants={slideUp}
