@@ -46,6 +46,14 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.locals.supabase = supabase;
+
+// Routes (gardez vos fichiers existants)
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/offres', require('./routes/offerRoutes'));
+app.use('/api/candidatures', require('./routes/candidatureRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+
 // Servir les fichiers statiques du dossier uploads
 app.use('/uploads', express.static('uploads'));
 console.log('📁 Fichiers statiques uploads configurés sur /uploads');
