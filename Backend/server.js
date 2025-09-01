@@ -1,16 +1,25 @@
+require('dotenv').config()
 const express = require('express')
-const app = express()
+const cors = require('cors')
+const { createClient } = require('@supabase/supabase-js')
 
-// TEST SANS DOTENV NI SUPABASE
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Server basic OK',
-    env_count: Object.keys(process.env).length,
-    has_supabase_url: !!process.env.SUPABASE_URL,
-    has_supabase_key: !!process.env.SUPABASE_ANON_KEY,
-    supabase_url_value: process.env.SUPABASE_URL || 'UNDEFINED',
-    all_supabase_vars: Object.keys(process.env).filter(k => k.includes('SUPABASE'))
-  })
+const app = express()
+app.use(cors({ origin: '*' }))
+app.use(express.json())
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+)
+
+app.get('/api/test', async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('users').select('count')
+    if (error) throw error
+    res.json({ success: true, message: 'DB connectée!' })
+  } catch (error) {
+    res.json({ success: false, error: error.message })
+  }
 })
 
 app.listen(process.env.PORT || 5000)
