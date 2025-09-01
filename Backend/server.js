@@ -1,3 +1,9 @@
+console.log('=== DEBUG VARIABLES RENDER ===')
+console.log('Process ENV Keys:', Object.keys(process.env).filter(k => k.includes('SUPABASE')))
+console.log('SUPABASE_URL direct:', process.env.SUPABASE_URL)
+console.log('SUPABASE_ANON_KEY direct:', process.env.SUPABASE_ANON_KEY)
+console.log('NODE_ENV:', process.env.NODE_ENV)
+console.log('================================')
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
