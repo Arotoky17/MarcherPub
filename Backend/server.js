@@ -5,9 +5,15 @@ const { createClient } = require('@supabase/supabase-js')
 
 const app = express()
 
+// CORS pour votre frontend Vercel
 app.use(cors({
-  origin: '*' // Temporaire pour test
+  origin: [
+    'http://localhost:3000', 
+    'https://votre-app.vercel.app' // Changez par votre vraie URL Vercel
+  ],
+  credentials: true
 }))
+
 app.use(express.json())
 
 // Connexion Supabase
@@ -16,32 +22,36 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 )
 
-// Test de connexion avec vos vraies tables
-app.get('/test-db', async (req, res) => {
+// Route de base
+app.get('/', (req, res) => {
+  res.json({ message: 'API Backend connectée!' })
+})
+
+// Test de connexion DB
+app.get('/api/test', async (req, res) => {
   try {
-    // Test sur chaque table
-    const usersTest = await supabase.from('users').select('count', { count: 'exact' })
-    const offresTest = await supabase.from('offres').select('count', { count: 'exact' })
-    const candidaturesTest = await supabase.from('candidatures').select('count', { count: 'exact' })
+    const usersCount = await supabase.from('users').select('count', { count: 'exact' })
+    const offresCount = await supabase.from('offres').select('count', { count: 'exact' })
+    const candidaturesCount = await supabase.from('candidatures').select('count', { count: 'exact' })
     
     res.json({ 
-      success: true, 
-      message: 'Toutes les tables sont connectées!',
+      success: true,
+      message: 'Base de données connectée!',
       tables: {
-        users: usersTest.count || 0,
-        offres: offresTest.count || 0,
-        candidatures: candidaturesTest.count || 0
+        users: usersCount.count,
+        offres: offresCount.count,
+        candidatures: candidaturesCount.count
       }
     })
   } catch (error) {
-    res.json({ 
+    res.status(500).json({ 
       success: false, 
       error: error.message 
     })
   }
 })
 
-// Routes API pour vos tables
+// Routes CRUD pour Users
 app.get('/api/users', async (req, res) => {
   try {
     const { data, error } = await supabase.from('users').select('*')
@@ -52,6 +62,21 @@ app.get('/api/users', async (req, res) => {
   }
 })
 
+app.post('/api/users', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .insert([req.body])
+      .select()
+    
+    if (error) throw error
+    res.status(201).json(data[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Routes CRUD pour Offres
 app.get('/api/offres', async (req, res) => {
   try {
     const { data, error } = await supabase.from('offres').select('*')
@@ -62,6 +87,21 @@ app.get('/api/offres', async (req, res) => {
   }
 })
 
+app.post('/api/offres', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('offres')
+      .insert([req.body])
+      .select()
+    
+    if (error) throw error
+    res.status(201).json(data[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Routes CRUD pour Candidatures
 app.get('/api/candidatures', async (req, res) => {
   try {
     const { data, error } = await supabase.from('candidatures').select('*')
@@ -72,6 +112,21 @@ app.get('/api/candidatures', async (req, res) => {
   }
 })
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log('🚀 Server ready!')
+app.post('/api/candidatures', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('candidatures')
+      .insert([req.body])
+      .select()
+    
+    if (error) throw error
+    res.status(201).json(data[0])
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+const PORT = process.env.PORT || 5000
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`)
 })

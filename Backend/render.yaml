@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: mon-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        value: https://elulxxtneaxxezpgyibs.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsdWx4eHRuZWF4eGV6cGd5aWJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0OTQxMDAsImV4cCI6MjA3MjA3MDEwMH0.S0I82pLie84AW7euw5ejXkDN3fMnoi-NiNCRx0pj_4s
