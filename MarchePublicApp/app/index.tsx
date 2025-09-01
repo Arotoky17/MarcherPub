@@ -1,0 +1,12 @@
+import React from 'react';
+import { Redirect } from 'expo-router';
+import { useAuth } from '@/src/context/AuthContext';
+
+export default function Index() {
+  const { token, isLoading } = useAuth();
+  const PREVIEW_MODE = true; // For now, send users to Home first
+  if (isLoading) return null;
+  return <Redirect href={token ? '/entreprise' : '/home'} />;
+}
+
+
