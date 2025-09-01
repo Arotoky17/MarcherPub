@@ -18,6 +18,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
+console.log('🔍 SUPABASE_URL:', process.env.SUPABASE_URL)
+console.log('🔍 SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
