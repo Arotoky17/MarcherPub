@@ -21,26 +21,46 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS avec normalisation des URLs
+// CORS avec normalisation des URLs et support d'origines multiples
+const envOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'https://marcher-pub-2y3i.vercel.app',
-  process.env.FRONTEND_URL
+  'marcher-pub-2y3i-2pp0ugaqe-arotoky17s-projects.vercel.app',
+  ...envOrigins
 ].filter(Boolean);
+
+// Autoriser des patterns (préviews vercel, render, etc.)
+const allowedOriginPatterns = [
+  /^https?:\/\/.*\.vercel\.app$/,
+  /^https?:\/\/.*\.onrender\.com$/
+];
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true); // Postman / mobile apps
     const normalizedOrigin = origin.replace(/\/$/, '');
-    const allowed = allowedOrigins.map(o => o.replace(/\/$/, ''));
-    if (allowed.includes(normalizedOrigin)) return callback(null, true);
+    const allowed = allowedOrigins.map(o => (o || '').replace(/\/$/, ''));
+    const isExplicit = allowed.includes(normalizedOrigin);
+    const isPattern = allowedOriginPatterns.some(re => re.test(normalizedOrigin));
+    if (isExplicit || isPattern) return callback(null, true);
     console.log('❌ CORS blocked origin:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
+  methods: ['GET','POST','PUT','DELETE','OPTIONS','PATCH'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With'],
+  exposedHeaders: ['Content-Length']
 }));
+
+// Répondre aux pré-vols
+app.options('*', cors());
 
 // Servir fichiers statiques
 app.use('/uploads', express.static('uploads'));
