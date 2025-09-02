@@ -49,8 +49,8 @@ console.log('📁 Fichiers statiques uploads configurés sur /uploads');
 app.use('/favicon.ico', express.static('favicon.ico'));
 
 // Importation des modèles Sequelize
-const db = require('./models');
-const { User, Offer, sequelize } = db;
+const database = require('./models');
+const { User, Offer, sequelize } = database;
 
 // Connexion à la base de données
 (async () => {
