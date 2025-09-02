@@ -11,6 +11,7 @@ router.get('/', offerController.getAllOffers);
 
 // Récupérer les offres publiées
 router.get('/published', offerController.getPublishedOffers);
+router.get('/publiees', offerController.getPublishedOffers);
 
 // Récupérer une offre par ID
 router.get('/:id', offerController.getOfferById);
