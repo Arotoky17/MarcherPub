@@ -50,10 +50,28 @@ const Home = () => {
       try {
         // Remplace l'URL locale par l'URL Render :
         const response = await axios.get(`${API_BASE_URL}/api/offres/published`);
-        const items = response.data && Array.isArray(response.data.offres) ? response.data.offres : [];
+        console.log('API Response:', response.data); // Debug log
+        
+        // Vérification plus robuste de la structure de réponse
+        let items = [];
+        if (response.data && response.data.offres) {
+          if (Array.isArray(response.data.offres)) {
+            items = response.data.offres;
+          } else if (typeof response.data.offres === 'object') {
+            // Si offres est un objet, essayer de le convertir en array
+            items = Object.values(response.data.offres);
+          }
+        }
+        
+        console.log('Processed items:', items); // Debug log
+        console.log('Items type:', typeof items); // Debug log
+        console.log('Is Array:', Array.isArray(items)); // Debug log
+        
         setOffers(items);
       } catch (error) {
         console.error("Erreur lors du chargement des offres", error);
+        console.error("Error details:", error.response?.data); // Debug log
+        setOffers([]); // Assurer que offers est toujours un array
       } finally {
         setLoading(false);
       }
@@ -71,10 +89,19 @@ const Home = () => {
   }, []);
 
   const safeOffers = Array.isArray(offers) ? offers : [];
-  const filteredOffers = safeOffers.filter(offer =>
-    offer.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    offer.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  console.log('offers state:', offers); // Debug log
+  console.log('safeOffers:', safeOffers); // Debug log
+  
+  const filteredOffers = safeOffers.filter(offer => {
+    // Vérification supplémentaire que offer est un objet valide
+    if (!offer || typeof offer !== 'object') {
+      console.log('Invalid offer object:', offer); // Debug log
+      return false;
+    }
+    
+    return offer.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           offer.description?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   // Classes conditionnelles basées sur le mode sombre
   const bgClass = darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-blue-100';
@@ -505,20 +532,20 @@ const Home = () => {
             >
               {filteredOffers.map((offer) => (
                 <motion.div
-                  key={offer.id}
+                  key={offer?.id || Math.random()}
                   variants={item}
                   whileHover={{ y: -5 }}
                 >
                   <div 
                     className={`${cardBgClass} border ${borderClass} rounded-lg shadow-sm hover:shadow-md transition-all h-full flex flex-col overflow-hidden`}
-                    onClick={() => navigate(`/marches/${offer.id}`)}
+                    onClick={() => offer?.id ? navigate(`/marches/${offer.id}`) : null}
                   >
                     <div className="p-6 flex-grow">
                       <div className="flex justify-between items-start mb-3">
                         <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                          {offer.title}
+                          {offer?.title || 'Titre non disponible'}
                         </h3>
-                        {offer.status === 'urgent' && (
+                        {offer?.status === 'urgent' && (
                           <span className={`${darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800'} text-xs px-2 py-1 rounded-full`}>
                             Prioritaire
                           </span>
@@ -527,22 +554,22 @@ const Home = () => {
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         <span className={`${darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-50 text-blue-700'} px-3 py-1 rounded-full text-xs font-medium`}>
-                          {offer.category || 'Tous secteurs'}
+                          {offer?.domaine || 'Tous secteurs'}
                         </span>
                         <span className={`${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'} px-3 py-1 rounded-full text-xs font-medium`}>
-                          Réf: {offer.reference}
+                          Réf: {offer?.id || 'N/A'}
                         </span>
                       </div>
 
                       <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} text-sm mb-4 line-clamp-3`}>
-                        {offer.description}
+                        {offer?.description || 'Description non disponible'}
                       </p>
                     </div>
 
                     <div className={`px-6 py-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} border-t ${borderClass}`}>
                       <div className="flex justify-between items-center">
                         <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                          <span className="font-medium">Clôture:</span> {new Date(offer.dateLimite).toLocaleDateString()}
+                          <span className="font-medium">Clôture:</span> {offer?.dateLimite ? new Date(offer.dateLimite).toLocaleDateString() : 'Date non définie'}
                         </div>
                         <button className={`${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} text-sm font-medium flex items-center`}>
                           Détails <ChevronRightIcon className="w-4 h-4 ml-1" />
