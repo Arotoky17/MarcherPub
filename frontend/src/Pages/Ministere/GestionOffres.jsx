@@ -13,7 +13,7 @@ const GestionOffres = () => {
   const fetchOffres = async () => {
     try {
       const token = localStorage.getItem('token');
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
       
       const response = await axios.get(`${API_BASE_URL}/api/offres`, {
         headers: {

@@ -11,7 +11,7 @@ const CandidaturesList = ({ role }) => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get(`http://localhost:3000/api/dashboard/${role}`, {
+        const { data } = await axios.get(`https://marcherpub.onrender.com/api/dashboard/${role}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

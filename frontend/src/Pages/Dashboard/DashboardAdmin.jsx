@@ -25,7 +25,7 @@ const DashboardAdmin = () => {
     if (!token) return navigate('/');
 
     setLoading(true);
-    fetch('http://localhost:3000/api/dashboard/admin', {
+    fetch('https://marcherpub.onrender.com', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {

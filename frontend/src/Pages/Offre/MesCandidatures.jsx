@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaFileAlt, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaFilter } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
 
 const MesCandidatures = () => {
   const { darkMode } = useTheme();

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaSpinner, FaPaperPlane, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
 
 const Postuler = () => {
   const { offerId } = useParams();

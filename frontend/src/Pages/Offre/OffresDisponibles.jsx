@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaCalendarAlt, FaBuilding, FaArrowLeft, FaSearch, FaFilter } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
 
 const OffresDisponibles = () => {
   const { darkMode } = useTheme();

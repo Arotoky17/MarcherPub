@@ -49,7 +49,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
       
       const response = await axios.get(`${apiUrl}/api/dashboard/entreprise`, {
         headers: {
