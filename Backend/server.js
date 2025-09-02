@@ -21,11 +21,25 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS avec normalisation des URLs et support d'origines multiples
-const envOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+// CORS avec normalisation et sanitation des origines (évite les chaînes invalides)
+const envOriginsRaw = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
+
+// Garder uniquement des origins valides http(s)://
+const isValidOrigin = (value) => {
+  try {
+    if (!/^https?:\/\//i.test(value)) return false;
+    // Valide via URL
+    const u = new URL(value);
+    return !!u.protocol && !!u.hostname;
+  } catch (e) {
+    return false;
+  }
+};
+
+const envOrigins = envOriginsRaw.filter(isValidOrigin);
 
 const allowedOrigins = [
   'http://localhost:3000',
