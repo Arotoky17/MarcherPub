@@ -22,7 +22,7 @@ const GestionOffres = () => {
         }
       });
 
-      setOffres(response.data.offres || response.data);
+      setOffres(Array.isArray(response.data.offres) ? response.data.offres : (Array.isArray(response.data) ? response.data : []));
       setLoading(false);
     } catch (error) {
       console.error('Erreur récupération offres:', error);

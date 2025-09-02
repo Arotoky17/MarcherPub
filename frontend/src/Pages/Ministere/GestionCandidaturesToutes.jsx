@@ -39,7 +39,7 @@ const GestionCandidaturesToutes = () => {
       }
 
       const data = await response.json();
-      setOffres(data.offres || []);
+      setOffres(Array.isArray(data.offres) ? data.offres : []);
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -59,7 +59,7 @@ const GestionCandidaturesToutes = () => {
       }
 
       const data = await response.json();
-      setCandidatures(data);
+      setCandidatures(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
     }

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaHome, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +29,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('https://marcherpub.onrender.com/api/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

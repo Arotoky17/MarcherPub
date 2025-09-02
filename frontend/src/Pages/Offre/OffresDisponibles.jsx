@@ -26,7 +26,7 @@ const OffresDisponibles = () => {
         }
         
         const data = await response.json();
-        const offers = data.offres || [];
+        const offers = Array.isArray(data.offres) ? data.offres : [];
         setOffres(offers);
         setFilteredOffres(offers);
         

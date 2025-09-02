@@ -30,8 +30,9 @@ const MesCandidatures = () => {
         return res.json();
       })
       .then(data => {
-        setCandidatures(data);
-        setFilteredCandidatures(data);
+        const safeData = Array.isArray(data) ? data : [];
+        setCandidatures(safeData);
+        setFilteredCandidatures(safeData);
         setLoading(false);
       })
       .catch(err => {

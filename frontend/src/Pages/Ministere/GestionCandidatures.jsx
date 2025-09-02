@@ -33,7 +33,7 @@ const GestionCandidatures = () => {
         });
         
         console.log('📋 Candidatures récupérées:', res.data.candidatures);
-        setCandidatures(res.data.candidatures || []);
+        setCandidatures(Array.isArray(res.data.candidatures) ? res.data.candidatures : []);
       } catch (err) {
         console.error('❌ Erreur lors du chargement des candidatures:', err);
         setError(err.response?.data?.error || 'Erreur lors du chargement des candidatures');
