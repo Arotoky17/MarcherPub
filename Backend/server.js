@@ -74,7 +74,7 @@ app.use(cors({
 }));
 
 // Répondre aux pré-vols
-app.options('*', cors());
+app.options(/.*/, cors());
 
 // Servir fichiers statiques
 app.use('/uploads', express.static('uploads'));
@@ -159,6 +159,7 @@ app.get('/api/debug/routes', (req, res) => {
     'GET /api/candidatures/me'
   ]});
 });
+
 
 // Routes API
 app.use('/api/auth', require('./routes/authRoutes'));
