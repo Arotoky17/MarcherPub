@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://marche-publique.vercel.app',
+  'https://marcher-pub-2y3i.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
