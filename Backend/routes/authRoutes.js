@@ -1,4 +1,3 @@
- 
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
@@ -11,7 +10,7 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 
 // Route de vérification du token (après authentification)
-router.get('/verify', authMiddleware, (req, res)  => {
+router.get('/verify', authMiddleware, (req, res) => {
   res.json({ message: 'Token validé avec succès' });
 });
 
