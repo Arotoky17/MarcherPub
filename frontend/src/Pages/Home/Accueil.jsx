@@ -49,8 +49,9 @@ const Home = () => {
     const fetchPublishedOffers = async () => {
       try {
         // Remplace l'URL locale par l'URL Render :
-        const response = await axios.get(`${API_BASE_URL}/api/offres/publiees`);
-        setOffers(response.data);
+        const response = await axios.get(`${API_BASE_URL}/api/offres/published`);
+        const items = response.data && Array.isArray(response.data.offres) ? response.data.offres : [];
+        setOffers(items);
       } catch (error) {
         console.error("Erreur lors du chargement des offres", error);
       } finally {
@@ -69,7 +70,8 @@ const Home = () => {
     return () => observer.disconnect();
   }, []);
 
-  const filteredOffers = offers.filter(offer =>
+  const safeOffers = Array.isArray(offers) ? offers : [];
+  const filteredOffers = safeOffers.filter(offer =>
     offer.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     offer.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -516,7 +518,7 @@ const Home = () => {
                         <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                           {offer.title}
                         </h3>
-                        {offer.statut === 'urgent' && (
+                        {offer.status === 'urgent' && (
                           <span className={`${darkMode ? 'bg-red-900 text-red-200' : 'bg-red-100 text-red-800'} text-xs px-2 py-1 rounded-full`}>
                             Prioritaire
                           </span>
@@ -540,7 +542,7 @@ const Home = () => {
                     <div className={`px-6 py-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'} border-t ${borderClass}`}>
                       <div className="flex justify-between items-center">
                         <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                          <span className="font-medium">Clôture:</span> {new Date(offer.deadline).toLocaleDateString()}
+                          <span className="font-medium">Clôture:</span> {new Date(offer.dateLimite).toLocaleDateString()}
                         </div>
                         <button className={`${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} text-sm font-medium flex items-center`}>
                           Détails <ChevronRightIcon className="w-4 h-4 ml-1" />
