@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../config/db');
+const sequelize = require('../config/database');
 
 const db = {
   Sequelize,
@@ -7,6 +7,7 @@ const db = {
   models: {}
 };
 
+// Définir les modèles
 const modelDefiners = [
   require('./User'),
   require('./Offer'),
@@ -18,51 +19,19 @@ for (const defineModel of modelDefiners) {
   db.models[model.name] = model;
 }
 
+// Raccourcis
 db.User = db.models.User;
 db.Offer = db.models.Offer;
 db.Candidature = db.models.Candidature;
 
-const FOREIGN_KEYS = {
-  CANDIDATURE: {
-    ENTREPRISE: 'entrepriseId',
-    OFFER: 'offerId'
-  },
-  OFFER: {
-    CREATED_BY: 'createdById'
-  }
-};
+// Associations
+db.User.hasMany(db.Offer, { foreignKey: 'createdById', as: 'offersCreated' });
+db.Offer.belongsTo(db.User, { foreignKey: 'createdById', as: 'creator' });
 
-function setupAssociations() {
-  const { User, Offer, Candidature } = db;
+db.User.hasMany(db.Candidature, { foreignKey: 'entrepriseId', as: 'candidatures' });
+db.Candidature.belongsTo(db.User, { foreignKey: 'entrepriseId', as: 'entreprise' });
 
-  User.hasMany(Candidature, {
-    foreignKey: 'entrepriseId',
-    as: 'candidatures'
-  });
-  Candidature.belongsTo(User, {
-    foreignKey: 'entrepriseId',
-    as: 'entreprise'
-  });
-
-  Offer.hasMany(Candidature, {
-    foreignKey: 'offerId',
-    as: 'candidatures'
-  });
-  Candidature.belongsTo(Offer, {
-    foreignKey: 'offerId',
-    as: 'Offer'
-  });
-
-  User.hasMany(Offer, {
-    foreignKey: 'createdById',
-    as: 'offersCreated'
-  });
-  Offer.belongsTo(User, {
-    foreignKey: 'createdById',
-    as: 'creator'
-  });
-}
-
-setupAssociations();
+db.Offer.hasMany(db.Candidature, { foreignKey: 'offerId', as: 'candidatures' });
+db.Candidature.belongsTo(db.Offer, { foreignKey: 'offerId', as: 'offer' });
 
 module.exports = db;

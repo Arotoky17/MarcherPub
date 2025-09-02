@@ -1,6 +1,10 @@
-// models/Offer.js
 module.exports = (sequelize, DataTypes) => {
   const Offer = sequelize.define('Offer', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -18,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM('en_attente', 'valide', 'rejetée'),
+      type: DataTypes.ENUM('en_attente', 'valide', 'rejete'),
       defaultValue: 'en_attente',
       allowNull: false,
     },
@@ -31,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     createdById: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
   }, {
