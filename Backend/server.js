@@ -137,6 +137,17 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
+// Route racine pour éviter 404 sur HEAD/GET /
+app.get('/', (req, res) => {
+  res.json({
+    name: 'MarcherPub API',
+    status: 'OK',
+    health: '/api/health',
+    version: process.env.npm_package_version || null,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes debug et test
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Serveur backend opérationnel', timestamp: new Date().toISOString(), port: PORT });
