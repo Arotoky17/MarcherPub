@@ -32,7 +32,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'https://marcher-pub-2y3i.vercel.app',
-  'marcher-pub-2y3i-2pp0ugaqe-arotoky17s-projects.vercel.app',
+  'https://marcher-pub-2y3i-2pp0ugaqe-arotoky17s-projects.vercel.app',
   ...envOrigins
 ].filter(Boolean);
 
