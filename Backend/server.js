@@ -4,55 +4,61 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
-const { createClient } = require('@supabase/supabase-js')
+const { createClient } = require('@supabase/supabase-js');
 
 // Initialisation d’Express
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Vérification clé secrète JWT
+if (!process.env.SECRET_KEY || process.env.SECRET_KEY.length < 32) {
+  throw new Error('ERREUR CRITIQUE: SECRET_KEY manquante ou trop faible (32+ caractères requis)');
+}
+
 // Sécurité + logs + parsing
 app.use(helmet());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// CORS avec normalisation des URLs
 const allowedOrigins = [
   'http://localhost:3000',
   'https://marcher-pub-2y3i.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-console.log('🔍 SUPABASE_URL:', process.env.SUPABASE_URL)
-console.log('🔍 SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY)
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-)
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // Postman / mobile apps
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    const allowed = allowedOrigins.map(o => o.replace(/\/$/, ''));
+    if (allowed.includes(normalizedOrigin)) return callback(null, true);
+    console.log('❌ CORS blocked origin:', origin);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Servir les fichiers statiques du dossier uploads
+// Servir fichiers statiques
 app.use('/uploads', express.static('uploads'));
-console.log('📁 Fichiers statiques uploads configurés sur /uploads');
-
-// Servir le favicon si demandé au backend
 app.use('/favicon.ico', express.static('favicon.ico'));
 
-// Importation des modèles Sequelize
-const database = require('./models');
-const { User, Offer, sequelize } = database;
+// Supabase
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-// Connexion à la base de données
+console.log('🔍 SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('🔍 SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
+
+// Sequelize
+const db = require('./models');
+const { User, Offer, sequelize } = db;
+
 (async () => {
   try {
     await sequelize.authenticate();
@@ -63,7 +69,7 @@ const { User, Offer, sequelize } = database;
   }
 })();
 
-// Middleware de vérification du token JWT
+// Middleware auth JWT
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
@@ -75,9 +81,7 @@ const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
 
     const user = await User.findByPk(decoded.id);
-    if (!user) {
-      return res.status(401).json({ message: 'Utilisateur introuvable' });
-    }
+    if (!user) return res.status(401).json({ message: 'Utilisateur introuvable' });
 
     req.user = user;
     next();
@@ -87,10 +91,9 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// Middleware pour vérifier le rôle "ministere"
+// Middleware rôle ministère / admin
 const adminMiddleware = (req, res, next) => {
   const allowedRoles = ['ministere', 'admin', 'ministerepublique'];
-  
   if (!allowedRoles.includes(req.user.role)) {
     return res.status(403).json({
       message: `Accès réservé au ministère. Votre rôle: ${req.user.role}`,
@@ -100,72 +103,41 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
-// Routes de test et debug
+// Routes debug et test
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Serveur backend opérationnel',
-    timestamp: new Date().toISOString(),
-    port: PORT
-  });
+  res.json({ status: 'OK', message: 'Serveur backend opérationnel', timestamp: new Date().toISOString(), port: PORT });
 });
 
 app.get('/api/debug/routes', (req, res) => {
-  res.json({
-    availableRoutes: [
-      'GET /api/health',
-      'GET /api/debug/routes',
-      'POST /api/auth/login',
-      'POST /api/auth/register',
-      'GET /api/offres',
-      'POST /api/offres',
-      'GET /api/offres/published',
-      'GET /api/offres/:id',
-      'PUT /api/offres/:id/validate',
-      'PUT /api/offres/:id/reject',
-      'DELETE /api/offres/:id',
-      'POST /api/candidatures',
-      'GET /api/candidatures/me'
-    ]
-  });
+  res.json({ availableRoutes: [
+    'GET /api/health',
+    'GET /api/debug/routes',
+    'POST /api/auth/login',
+    'POST /api/auth/register',
+    'GET /api/offres',
+    'POST /api/offres',
+    'GET /api/offres/published',
+    'GET /api/offres/:id',
+    'PUT /api/offres/:id/validate',
+    'PUT /api/offres/:id/reject',
+    'DELETE /api/offres/:id',
+    'POST /api/candidatures',
+    'GET /api/candidatures/me'
+  ]});
 });
 
 // Routes API
-app.use('/api/auth', require('./routes/authRoutes'));  // Ce fichier est dans routes/ (minuscule)
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/offres', require('./routes/offerRoutes'));
+app.use('/api/candidatures', require('./routes/candidatureRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
-// Ajouter des logs pour debug
-console.log('🔧 Montage des routes /api/offres...');
-try {
-  app.use('/api/offres', require('./routes/offerRoutes'));  // Correction: routes avec r minuscule
-  console.log('✅ Routes /api/offres montées avec succès');
-} catch (error) {
-  console.error('❌ Erreur lors du montage des routes /api/offres:', error);
-}
-
-console.log('🔧 Montage des routes /api/candidatures...');
-try {
-  app.use('/api/candidatures', require('./routes/candidatureRoutes'));  // Ce dossier existe avec r minuscule
-  console.log('✅ Routes /api/candidatures montées avec succès');
-} catch (error) {
-  console.error('❌ Erreur lors du montage des routes /api/candidatures:', error);
-}
-
-console.log('🔧 Montage des routes /api/dashboard...');
-try {
-  app.use('/api/dashboard', require('./routes/dashboardRoutes'));
-  console.log('✅ Routes /api/dashboard montées avec succès');
-} catch (error) {
-  console.error('❌ Erreur lors du montage des routes /api/dashboard:', error);
-}
-
-// Route de test pour vérifier le rôle de l'utilisateur
+// Test rôle utilisateur
 app.get('/api/test-role', authMiddleware, (req, res) => {
-  if (['ministere', 'admin', 'ministerepublique'].includes(req.user.role)) {
+  if (['ministere','admin','ministerepublique'].includes(req.user.role)) {
     return res.json({ message: `Vous êtes administrateur (${req.user.role})` });
   }
-  if (req.user.role === 'entreprise') {
-    return res.json({ message: 'Vous êtes une entreprise' });
-  }
+  if (req.user.role === 'entreprise') return res.json({ message: 'Vous êtes une entreprise' });
   return res.status(403).json({ message: `Rôle non reconnu: ${req.user.role}` });
 });
 
@@ -175,7 +147,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Erreur serveur', error: err.message });
 });
 
-// Lancement du serveur
+// Lancement serveur
 app.listen(PORT, () => {
   console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
 });
