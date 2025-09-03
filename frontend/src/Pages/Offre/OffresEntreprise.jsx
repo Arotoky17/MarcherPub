@@ -11,8 +11,8 @@ const OffresEntreprise = () => {
   useEffect(() => {
     const fetchOffres = async () => {
       try {
-        const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
-        const res = await axios.get(`${API_BASE_URL}/api/offres/published`, {
+        const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
+        const res = await axios.get(`${API_BASE_URL}/offres/published`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setOffres(res.data.offres || res.data);

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaCalendarAlt, FaBuilding, FaArrowLeft, FaSearch, FaFilter } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const OffresDisponibles = () => {
   const { darkMode } = useTheme();
@@ -19,7 +19,7 @@ const OffresDisponibles = () => {
   useEffect(() => {
     const fetchOffres = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/offres/published`);
+        const response = await fetch(`${API_BASE_URL}/offres/published`);
         
         if (!response.ok) {
           throw new Error('Erreur lors de la récupération des offres');

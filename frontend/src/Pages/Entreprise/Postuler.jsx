@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaSpinner, FaPaperPlane, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const Postuler = () => {
   const { offerId } = useParams();
@@ -56,7 +56,7 @@ const Postuler = () => {
     }
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/candidatures`, formData, {
+      const res = await axios.post(`${API_BASE_URL}/candidatures`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

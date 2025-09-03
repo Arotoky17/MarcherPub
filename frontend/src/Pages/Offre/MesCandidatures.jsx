@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaFileAlt, FaCalendarAlt, FaCheckCircle, FaTimesCircle, FaClock, FaFilter } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const MesCandidatures = () => {
   const { darkMode } = useTheme();
@@ -22,7 +22,7 @@ const MesCandidatures = () => {
       return;
     }
 
-    fetch(`${API_BASE_URL}/api/candidatures/me`, {
+    fetch(`${API_BASE_URL}/candidatures/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {

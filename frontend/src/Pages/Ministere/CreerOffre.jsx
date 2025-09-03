@@ -85,7 +85,7 @@ const CreerOffre = () => {
         return;
       }
 
-      const response = await axios.post('/api/offres', {
+      const response = await axios.post('/offres', {
         title: formData.title,        // ✅ CORRIGÉ - Utilise "title" pas "titre"
         description: formData.description,
         domaine: formData.domaine,    // ✅ AJOUTÉ - Champ obligatoire

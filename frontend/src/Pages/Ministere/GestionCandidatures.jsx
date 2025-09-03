@@ -4,7 +4,7 @@ import { FaFileAlt, FaCheck, FaTimes, FaDownload } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -28,7 +28,7 @@ const GestionCandidatures = () => {
         const token = localStorage.getItem('token');
         
         // Récupérer toutes les candidatures via le dashboard
-        const res = await axios.get(`${API_BASE_URL}/api/dashboard/ministere`, {
+        const res = await axios.get(`${API_BASE_URL}/dashboard/ministere`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
