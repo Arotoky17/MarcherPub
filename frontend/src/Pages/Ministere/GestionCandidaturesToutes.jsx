@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaCheckCircle, FaTimesCircle, FaClock, FaBuilding, FaCalendarAlt, FaFileAlt } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const GestionCandidaturesToutes = () => {
   const { darkMode } = useTheme();
@@ -68,7 +68,7 @@ const GestionCandidaturesToutes = () => {
   const updateCandidatureStatus = async (candidatureId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/candidatures/${candidatureId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/candidatures/${candidatureId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

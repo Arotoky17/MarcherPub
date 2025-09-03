@@ -145,7 +145,7 @@ const DashboardMinistere = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const apiUrl = process.env.REACT_APP_API_URL || "https://marcherpub.onrender.com";
+      const apiUrl = process.env.REACT_APP_API_URL || "https://marcherpub.onrender.com/api";
       const response = await axios.get(`${apiUrl}/dashboard/ministere`, {
         headers: { Authorization: `Bearer ${token}` }
       });

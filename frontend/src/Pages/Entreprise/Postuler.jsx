@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FaSpinner, FaPaperPlane, FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const Postuler = () => {
   const { offerId } = useParams();
@@ -21,7 +21,7 @@ const Postuler = () => {
   useEffect(() => {
     const fetchOffer = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/offres/${offerId}`, {
+        const res = await axios.get(`${API_BASE_URL}/offres/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOffer(res.data.offre || res.data);
