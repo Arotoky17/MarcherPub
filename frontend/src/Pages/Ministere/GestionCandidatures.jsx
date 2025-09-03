@@ -55,9 +55,9 @@ const GestionCandidatures = () => {
   const handleStatusUpdate = async (candidatureId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      
+
       console.log('🔄 Mise à jour statut:', { candidatureId, newStatus });
-      
+
       const res = await axios.patch(`${API_BASE_URL}/api/candidatures/${candidatureId}/status`, {
         status: newStatus
       }, {
@@ -65,16 +65,40 @@ const GestionCandidatures = () => {
       });
 
       console.log('✅ Statut mis à jour:', res.data);
-      
+
       // Mettre à jour la liste locale
       setCandidatures(prev => prev.map(c =>
         c.id === candidatureId ? { ...c, status: newStatus } : c
       ));
-      
+
       alert(`Candidature ${newStatus === 'acceptée' ? 'acceptée' : 'rejetée'} avec succès`);
     } catch (err) {
       console.error('❌ Erreur lors de la mise à jour du statut:', err);
       alert(err.response?.data?.error || 'Erreur lors de la mise à jour');
+    }
+  };
+
+  const handleDeleteCandidature = async (candidatureId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette candidature ?')) {
+      try {
+        const token = localStorage.getItem('token');
+
+        console.log('🗑️ Suppression candidature:', candidatureId);
+
+        await axios.delete(`${API_BASE_URL}/candidatures/${candidatureId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('✅ Candidature supprimée');
+
+        // Mettre à jour la liste locale
+        setCandidatures(prev => prev.filter(c => c.id !== candidatureId));
+
+        alert('Candidature supprimée avec succès');
+      } catch (err) {
+        console.error('❌ Erreur lors de la suppression:', err);
+        alert(err.response?.data?.error || 'Erreur lors de la suppression');
+      }
     }
   };
 
@@ -286,32 +310,45 @@ const GestionCandidatures = () => {
                   <td className={`p-4 border transition-colors ${
                     darkMode ? 'border-indigo-700' : 'border-indigo-200'
                   }`}>
-                    {c.status === 'en_attente' ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleStatusUpdate(c.id, 'acceptée')}
-                          className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-                          title="Accepter la candidature"
-                        >
-                          <FaCheck className="text-sm" />
-                          Accepter
-                        </button>
-                        <button
-                          onClick={() => handleStatusUpdate(c.id, 'rejetée')}
-                          className="flex items-center gap-1 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-                          title="Rejeter la candidature"
-                        >
-                          <FaTimes className="text-sm" />
-                          Rejeter
-                        </button>
-                      </div>
-                    ) : (
-                      <span className={`text-sm italic transition-colors ${
-                        darkMode ? 'text-gray-500' : 'text-gray-400'
-                      }`}>
-                        Traitée
-                      </span>
-                    )}
+                    <div className="flex gap-2 items-center">
+                      {c.status === 'en_attente' ? (
+                        <>
+                          <button
+                            onClick={() => handleStatusUpdate(c.id, 'acceptée')}
+                            className="flex items-center gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
+                            title="Accepter la candidature"
+                          >
+                            <FaCheck className="text-sm" />
+                            Accepter
+                          </button>
+                          <button
+                            onClick={() => handleStatusUpdate(c.id, 'rejetée')}
+                            className="flex items-center gap-1 px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                            title="Rejeter la candidature"
+                          >
+                            <FaTimes className="text-sm" />
+                            Rejeter
+                          </button>
+                        </>
+                      ) : (
+                        <span className={`text-sm italic transition-colors ${
+                          darkMode ? 'text-gray-500' : 'text-gray-400'
+                        }`}>
+                          Traitée
+                        </span>
+                      )}
+                      <button
+                        onClick={() => handleDeleteCandidature(c.id)}
+                        className={`flex items-center gap-1 px-3 py-1 rounded transition-colors ${
+                          darkMode
+                            ? 'text-red-300 hover:text-red-200 bg-red-900 hover:bg-red-800'
+                            : 'text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200'
+                        }`}
+                        title="Supprimer la candidature"
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))}

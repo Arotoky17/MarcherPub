@@ -50,7 +50,7 @@ const GestionCandidaturesToutes = () => {
   const fetchCandidatures = async (offreId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/candidatures/offer/${offreId}`, {
+      const response = await fetch(`${API_BASE_URL}/candidatures/offer/${offreId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
