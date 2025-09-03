@@ -15,7 +15,7 @@ const GestionOffres = () => {
       const token = localStorage.getItem('token');
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
       
-      const response = await axios.get(`${API_BASE_URL}/offres`, {
+      const response = await axios.get(`${API_BASE_URL}/api/offres`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -40,7 +40,7 @@ const GestionOffres = () => {
       const token = localStorage.getItem('token');
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
       
-      await axios.put(`${API_BASE_URL}/offres/${offerId}/validate`, {}, {
+      await axios.put(`${API_BASE_URL}/api/offres/${offerId}/validate`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ const GestionOffres = () => {
       const token = localStorage.getItem('token');
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
       
-      await axios.put(`${API_BASE_URL}/offres/${offerId}/reject`, {}, {
+      await axios.put(`${API_BASE_URL}/api/offres/${offerId}/reject`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ const GestionOffres = () => {
         const token = localStorage.getItem('token');
         const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
         
-        await axios.delete(`${API_BASE_URL}/offres/${offerId}`, {
+        await axios.delete(`${API_BASE_URL}/api/offres/${offerId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
