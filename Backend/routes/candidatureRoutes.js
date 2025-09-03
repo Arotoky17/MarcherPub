@@ -45,4 +45,12 @@ router.get(
   candidatureController.getMyCandidatures
 );
 
+// 5. Supprimer une candidature (ministère uniquement)
+router.delete(
+  '/:id',
+  authMiddleware,
+  adminMiddleware,
+  candidatureController.deleteCandidature
+);
+
 module.exports = router;

@@ -191,7 +191,7 @@ exports.getMyCandidatures = async (req, res) => {
 
   try {
     console.log('🔍 Récupération candidatures pour entreprise:', entrepriseId);
-    
+
     const candidatures = await Candidature.findAll({
       where: { entrepriseId },
       include: [
@@ -211,6 +211,43 @@ exports.getMyCandidatures = async (req, res) => {
     console.error('Stack trace:', err.stack);
     res.status(500).json({
       error: 'Erreur serveur.',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};
+
+// DELETE : Supprimer une candidature (Admin / Ministère)
+exports.deleteCandidature = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    console.log('🗑️ Suppression candidature:', { candidatureId: id, userId: req.user.id, userRole: req.user.role });
+
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({ error: 'ID de candidature invalide.' });
+    }
+
+    const candidature = await Candidature.findByPk(id);
+    if (!candidature) {
+      console.log('❌ Candidature non trouvée:', id);
+      return res.status(404).json({ error: 'Candidature non trouvée.' });
+    }
+
+    // Supprimer la candidature
+    await candidature.destroy();
+
+    console.log('✅ Candidature supprimée avec succès:', id);
+
+    res.json({
+      message: 'Candidature supprimée avec succès.',
+      deletedId: id
+    });
+
+  } catch (err) {
+    console.error('❌ Erreur lors de la suppression de la candidature:', err);
+    console.error('Stack trace:', err.stack);
+    res.status(500).json({
+      error: 'Erreur serveur. Veuillez réessayer.',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
