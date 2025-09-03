@@ -51,7 +51,7 @@ const Dashboard = () => {
       const token = localStorage.getItem('token');
       const apiUrl = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
       
-      const response = await axios.get(`${apiUrl}/api/dashboard/entreprise`, {
+      const response = await axios.get(`${apiUrl}/dashboard/entreprise`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -18,7 +18,7 @@ const OffresDetails = () => {
 
   const fetchOffers = async () => {
     try {
-      const res = await axios.get('/api/offres/validated');
+      const res = await axios.get('/offres/validated');
       setOffres(res.data);
     } catch (err) {
       console.error('Erreur récupération offres', err);
@@ -31,7 +31,7 @@ const OffresDetails = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        '/api/candidatures',
+        '/candidatures',
         { offreId: selectedOffer.id, message },
         { headers: { Authorization: `Bearer ${token}` } }
       );
