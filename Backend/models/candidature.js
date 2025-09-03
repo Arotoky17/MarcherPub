@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM('en_attente', 'acceptée', 'rejetée'),
+      type: DataTypes.ENUM("en_attente", "acceptée", "rejetée"),
       allowNull: false,
-      defaultValue: 'en_attente'
+      defaultValue: "en_attente",
     },
     fileUrl: {
       type: DataTypes.STRING,
@@ -25,12 +25,27 @@ module.exports = (sequelize, DataTypes) => {
     offerId: {
       type: DataTypes.UUID,
       allowNull: false,
-    }
+    },
   }, {
-    tableName: 'candidatures',
+    tableName: "candidatures",
     timestamps: true,
     underscored: true,
   });
+
+  // ✅ Définition des associations
+  Candidature.associate = (models) => {
+    // Une candidature appartient à une offre
+    Candidature.belongsTo(models.Offer, {
+      foreignKey: "offerId",
+      as: "offer",   // 👈 alias défini ici
+    });
+
+    // Une candidature appartient à une entreprise (User avec rôle entreprise)
+    Candidature.belongsTo(models.User, {
+      foreignKey: "entrepriseId",
+      as: "entreprise",
+    });
+  };
 
   return Candidature;
 };
