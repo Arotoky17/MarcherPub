@@ -8,7 +8,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import Navbar from '../../Components/Navbar';
 
 // API_BASE_URL doit pointer vers le backend,
-const API_BASE_URL = 'https://marcherpub.onrender.com'; // Remplace par ton vrai lien Render
+const API_BASE_URL = process.env.REACT_APP_API_URL; 
 
 // Animations
 const container = {
