@@ -58,7 +58,7 @@ const GestionCandidatures = () => {
 
       console.log('🔄 Mise à jour statut:', { candidatureId, newStatus });
 
-      const res = await axios.patch(`${API_BASE_URL}/api/candidatures/${candidatureId}/status`, {
+      const res = await axios.patch(`${API_BASE_URL}/candidatures/${candidatureId}/status`, {
         status: newStatus
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -85,7 +85,7 @@ const GestionCandidatures = () => {
 
         console.log('🗑️ Suppression candidature:', candidatureId);
 
-        await axios.delete(`${API_BASE_URL}/api/candidatures/${candidatureId}`, {
+        await axios.delete(`${API_BASE_URL}/candidatures/${candidatureId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
