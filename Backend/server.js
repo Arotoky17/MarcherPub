@@ -167,6 +167,8 @@ app.get('/api/debug/routes', (req, res) => {
     'PUT /api/offres/:id/reject',
     'DELETE /api/offres/:id',
     'POST /api/candidatures',
+    'PATCH /api/candidatures/:id/status',
+    'DELETE /api/candidatures/:id',
     'GET /api/candidatures/me'
   ]});
 });
