@@ -4,7 +4,7 @@ import { FaFileAlt, FaCheck, FaTimes, FaDownload } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -58,7 +58,7 @@ const GestionCandidatures = () => {
 
       console.log('🔄 Mise à jour statut:', { candidatureId, newStatus });
 
-      const res = await axios.patch(`${API_BASE_URL}/api/candidatures/${candidatureId}/status`, {
+      const res = await axios.patch(`${API_BASE_URL}/candidatures/${candidatureId}/status`, {
         status: newStatus
       }, {
         headers: { Authorization: `Bearer ${token}` }
