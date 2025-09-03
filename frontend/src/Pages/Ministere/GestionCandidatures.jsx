@@ -27,7 +27,7 @@ const GestionCandidatures = () => {
         setLoading(true);
         const token = localStorage.getItem('token');
         
-        // Récupérer toutes les candidatures via le dashboard
+        // Correction: assurez-vous que l'URL correspond à votre backend
         const res = await axios.get(`${API_BASE_URL}/dashboard/ministere`, {
           headers: { Authorization: `Bearer ${token}` },
         });
