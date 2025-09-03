@@ -22,7 +22,7 @@ exports.getEntrepriseDashboard = async (req, res) => {
       include: [
         {
           model: Offer,
-          as: 'Offer',
+          as: 'offer',
           attributes: ['id', 'title', 'status']
         }
       ]
@@ -51,7 +51,7 @@ exports.getEntrepriseDashboard = async (req, res) => {
         id: candidature.id,
         status: candidature.status,
         createdAt: candidature.createdAt,
-        offer: candidature.Offer
+        offer: candidature.offer
       })),
       stats
     });
