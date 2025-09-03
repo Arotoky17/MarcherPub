@@ -197,7 +197,7 @@ exports.getMyCandidatures = async (req, res) => {
       include: [
         {
           model: Offer,
-          as: 'Offer',
+          as: 'offer',
           attributes: ['id', 'title', 'status', 'description', 'domaine']
         }
       ],
