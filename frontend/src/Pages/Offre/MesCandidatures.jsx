@@ -22,7 +22,7 @@ const MesCandidatures = () => {
       return;
     }
 
-    fetch(`${API_BASE_URL}/api/candidatures/me`, {
+    fetch(`${API_BASE_URL}/candidatures/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
