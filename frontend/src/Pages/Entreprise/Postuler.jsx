@@ -56,7 +56,7 @@ const Postuler = () => {
     }
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/candidatures`, formData, {
+      const res = await axios.post(`${API_BASE_URL}/candidatures`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
