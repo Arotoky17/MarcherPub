@@ -247,15 +247,46 @@ const GestionCandidatures = () => {
 
       console.log('🗑️ Suppression candidature:', candidatureId);
 
-      await axios.delete(`${API_BASE_URL}/api/candidatures/${candidatureId}`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
+      // Essayer les endpoints basés sur tes routes réelles
+      const endpoints = [
+        `/api/candidatures/${candidatureId}`,        // Route principale
+        `/api/dashboard/candidatures/${candidatureId}` // Via dashboard
+      ];
 
-      console.log('✅ Candidature supprimée');
+      let success = false;
+      let lastError;
+
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`🔍 Tentative suppression avec: ${API_BASE_URL}${endpoint}`);
+          
+          await axios.delete(`${API_BASE_URL}${endpoint}`, {
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            timeout: 10000
+          });
+          
+          console.log('✅ Suppression réussie avec:', endpoint);
+          success = true;
+          break;
+          
+        } catch (deleteError) {
+          console.log(`❌ Suppression échouée pour ${endpoint}:`, deleteError.response?.status);
+          lastError = deleteError;
+          
+          // Si ce n'est pas une 404, arrêter d'essayer
+          if (deleteError.response?.status !== 404) {
+            throw deleteError;
+          }
+        }
+      }
+
+      if (!success) {
+        console.error('❌ Tous les endpoints de suppression ont échoué. Dernière erreur:', lastError);
+        throw lastError || new Error('Endpoint de suppression non trouvé');
+      }
 
       // Mettre à jour la liste locale
       setCandidatures(prev => prev.filter(c => 
