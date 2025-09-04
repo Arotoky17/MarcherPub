@@ -21,7 +21,7 @@ const Postuler = () => {
   useEffect(() => {
     const fetchOffer = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/offres/${offerId}`, {
+        const res = await axios.get(`${API_BASE_URL}/api/offres/${offerId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOffer(res.data.offre || res.data);
@@ -56,7 +56,7 @@ const Postuler = () => {
     }
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/candidatures`, formData, {
+      const res = await axios.post(`${API_BASE_URL}/api/candidatures`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
