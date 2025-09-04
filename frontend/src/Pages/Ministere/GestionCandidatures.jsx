@@ -388,7 +388,7 @@ const GestionCandidatures = () => {
               : 'bg-indigo-600 hover:bg-indigo-700 text-white'
           }`}
         >
-          <FaRefresh className={refreshing ? 'animate-spin' : ''} />
+          <FaSync className={refreshing ? 'animate-spin' : ''} />
           {refreshing ? 'Actualisation...' : 'Actualiser'}
         </button>
       </div>
