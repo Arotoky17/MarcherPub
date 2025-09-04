@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaFileAlt, FaCheck, FaTimes, FaDownload, FaRefresh } from 'react-icons/fa';
+import { FaFileAlt, FaCheck, FaTimes, FaDownload, FaSync } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -389,6 +389,7 @@ const GestionCandidatures = () => {
           }`}
         >
           <FaSync className={refreshing ? 'animate-spin' : ''} />
+
           {refreshing ? 'Actualisation...' : 'Actualiser'}
         </button>
       </div>
