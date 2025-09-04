@@ -247,10 +247,13 @@ const GestionCandidatures = () => {
 
       console.log('🗑️ Suppression candidature:', candidatureId);
 
-      // Essayer les endpoints basés sur tes routes réelles
+      // Essayer différents endpoints possibles pour la suppression
       const endpoints = [
-        `/api/candidatures/${candidatureId}`,        // Route principale
-        `/api/dashboard/candidatures/${candidatureId}` // Via dashboard
+        `/api/candidatures/${candidatureId}`,
+        `/api/candidature/${candidatureId}`,
+        `/api/dashboard/candidatures/${candidatureId}`,
+        `/api/ministere/candidatures/${candidatureId}`,
+        `/api/dashboard/ministere/candidatures/${candidatureId}`
       ];
 
       let success = false;
@@ -273,19 +276,17 @@ const GestionCandidatures = () => {
           break;
           
         } catch (deleteError) {
-          console.log(`❌ Suppression échouée pour ${endpoint}:`, deleteError.response?.status);
           lastError = deleteError;
-          
-          // Si ce n'est pas une 404, arrêter d'essayer
           if (deleteError.response?.status !== 404) {
+            // Si ce n'est pas une 404, on arrête d'essayer
             throw deleteError;
           }
+          console.log(`❌ Échec suppression pour: ${endpoint}`);
         }
       }
 
       if (!success) {
-        console.error('❌ Tous les endpoints de suppression ont échoué. Dernière erreur:', lastError);
-        throw lastError || new Error('Endpoint de suppression non trouvé');
+        throw lastError || new Error('Tous les endpoints de suppression ont échoué');
       }
 
       // Mettre à jour la liste locale
