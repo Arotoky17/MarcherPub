@@ -168,63 +168,58 @@ const GestionCandidatures = () => {
     acceptees: candidatures.filter(c => c.status === 'acceptée' || c.status === 'accepted').length,
     rejetees: candidatures.filter(c => c.status === 'rejetée' || c.status === 'rejected').length
   };
-
-  const handleStatusUpdate = async (candidatureId, newStatus) => {
-    if (!candidatureId) {
-      alert('ID de candidature manquant');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
-
-      if (!token) {
-        alert('Token d\'authentification manquant');
-        navigate('/login');
-        return;
-      }
-
-      console.log('🔄 Mise à jour statut:', { candidatureId, newStatus });
-
-      const res = await axios.patch(`${API_BASE_URL}/api/candidatures/${candidatureId}/status`, {
-        status: newStatus
-      }, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
-
-      console.log('✅ Statut mis à jour:', res.data);
-
-      // Mettre à jour la liste locale
+const handleStatusUpdateDebug = async (candidatureId, newStatus) => {
+  console.log('🚀 Début handleStatusUpdate');
+  console.log('- candidatureId:', candidatureId, '(type:', typeof candidatureId, ')');
+  console.log('- newStatus:', newStatus);
+  
+  // Vérifications préalables
+  if (!candidatureId) {
+    console.error('❌ ID candidature manquant');
+    alert('ID de candidature manquant');
+    return;
+  }
+  
+  if (candidatureId === 'undefined' || candidatureId === 'null') {
+    console.error('❌ ID candidature invalide:', candidatureId);
+    alert('ID de candidature invalide');
+    return;
+  }
+  
+  const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+  if (!token) {
+    console.error('❌ Token manquant');
+    alert('Token d\'authentification manquant');
+    navigate('/login');
+    return;
+  }
+  
+  console.log('✅ Vérifications OK, tentative de mise à jour...');
+  
+  try {
+    // Utiliser la fonction de debug
+    const result = await debugCandidatureUpdate(candidatureId, newStatus);
+    
+    if (result) {
+      console.log('✅ Mise à jour réussie avec:', result.endpoint);
+      
+      // Mettre à jour l'état local
       setCandidatures(prev => prev.map(c =>
-        c.id === candidatureId || c._id === candidatureId 
+        (c.id === candidatureId || c._id === candidatureId) 
           ? { ...c, status: newStatus } 
           : c
       ));
-
+      
       alert(`Candidature ${newStatus === 'acceptée' ? 'acceptée' : 'rejetée'} avec succès`);
-      
-    } catch (err) {
-      console.error('❌ Erreur lors de la mise à jour du statut:', err);
-      
-      let errorMessage = 'Erreur lors de la mise à jour';
-      
-      if (err.response?.status === 404) {
-        errorMessage = 'Candidature introuvable';
-      } else if (err.response?.status === 403) {
-        errorMessage = 'Vous n\'avez pas l\'autorisation de modifier cette candidature';
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      }
-      
-      alert(errorMessage);
+    } else {
+      throw new Error('Aucun endpoint disponible pour la mise à jour');
     }
-  };
+    
+  } catch (error) {
+    console.error('❌ Erreur complète:', error);
+    alert('Erreur lors de la mise à jour: ' + (error.response?.data?.error || error.message));
+  }
+};
 
   const handleDeleteCandidature = async (candidatureId) => {
     if (!candidatureId) {
