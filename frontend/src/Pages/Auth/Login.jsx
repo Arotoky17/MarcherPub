@@ -5,7 +5,8 @@ import { FaHome, FaSun, FaMoon } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+
 const ROUTES = {
   MINISTERE: '/ministere/home',
   ENTREPRISE: '/entreprise/home',
@@ -27,6 +28,67 @@ const Login = () => {
   const navigate = useNavigate();
   const { darkMode, setDarkMode } = useTheme();
 
+  // Configuration des interceptors Axios pour la gestion JWT
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // Gestion du token expiré
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            const refreshToken = localStorage.getItem('refreshToken');
+            if (refreshToken) {
+              console.log('🔄 Tentative de renouvellement du token...');
+              const response = await axios.post(`${API_BASE_URL}/api/auth/refresh`, {
+                refreshToken
+              });
+
+              const { accessToken, token: newToken } = response.data;
+              const tokenToUse = accessToken || newToken;
+
+              if (tokenToUse) {
+                localStorage.setItem('token', tokenToUse);
+                localStorage.setItem('accessToken', tokenToUse);
+                originalRequest.headers.Authorization = `Bearer ${tokenToUse}`;
+                
+                console.log('✅ Token renouvelé avec succès');
+                return axios(originalRequest);
+              }
+            }
+          } catch (refreshError) {
+            console.error('❌ Échec du renouvellement du token:', refreshError);
+            localStorage.removeItem('token');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [navigate]);
+
   // Check screen size for mobile responsiveness
   useEffect(() => {
     const checkScreenSize = () => {
@@ -43,20 +105,93 @@ const Login = () => {
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Effacer les erreurs quand l'utilisateur tape
+    if (uiState.error) {
+      setUiState(prev => ({ ...prev, error: '' }));
+    }
+  }, [uiState.error]);
+
+  const determineRedirectRoute = useCallback((userRole, customRedirect) => {
+    if (customRedirect) return customRedirect;
+    
+    switch (userRole?.toLowerCase()) {
+      case 'ministere':
+        return ROUTES.MINISTERE;
+      case 'entreprise':
+        return ROUTES.ENTREPRISE;
+      default:
+        return ROUTES.DEFAULT;
+    }
   }, []);
 
   // Handle form submission and login
   const handleLogin = useCallback(async (e) => {
     e.preventDefault();
+
+    // Validation des champs
+    if (!formData.username.trim() || !formData.password.trim()) {
+      setUiState(prev => ({ 
+        ...prev, 
+        error: 'Veuillez remplir tous les champs' 
+      }));
+      return;
+    }
+
     setUiState(prev => ({ ...prev, error: '', success: '', isLoading: true }));
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, formData);
-      const { token, user, redirectTo } = response.data;
-      const userRole = user.role;
+      console.log('🔐 Tentative de connexion...');
+      
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+        username: formData.username.trim(),
+        password: formData.password
+      }, {
+        timeout: 15000, // 15 secondes pour Render
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
 
-      // Save user data and token in context
-      await login({ token, role: userRole, redirectTo, ...user });
+      console.log('📡 Réponse reçue:', response.status);
+
+      const { 
+        token, 
+        accessToken, 
+        refreshToken, 
+        user, 
+        redirectTo 
+      } = response.data;
+
+      // Utiliser accessToken en priorité, puis token
+      const authToken = accessToken || token;
+      const userRole = user?.role;
+
+      if (!authToken || !user) {
+        throw new Error('Réponse invalide du serveur');
+      }
+
+      console.log('👤 Utilisateur connecté:', userRole);
+
+      // Sauvegarder les tokens
+      localStorage.setItem('token', authToken);
+      localStorage.setItem('accessToken', authToken);
+      
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+        console.log('🔑 Refresh token sauvegardé');
+      }
+
+      // Sauvegarder les données utilisateur
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Mettre à jour le contexte d'authentification
+      await login({ 
+        token: authToken, 
+        role: userRole, 
+        redirectTo, 
+        ...user 
+      });
 
       setUiState(prev => ({
         ...prev,
@@ -64,14 +199,44 @@ const Login = () => {
         isLoading: false
       }));
 
-      
+      // Redirection après un court délai
+      setTimeout(() => {
+        const redirectRoute = determineRedirectRoute(userRole, redirectTo);
+        console.log('🔄 Redirection vers:', redirectRoute);
+        navigate(redirectRoute, { replace: true });
+      }, 1500);
 
-      console.log('✅ Login terminé, redirection en cours...');
+      console.log('✅ Login terminé avec succès');
+
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.message || 'Échec de connexion';
-      setUiState(prev => ({ ...prev, error: errorMessage, isLoading: false }));
+      console.error('❌ Erreur de connexion:', error);
+      
+      let errorMessage = 'Une erreur est survenue';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'Délai d\'attente dépassé. Le serveur met du temps à répondre.';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Nom d\'utilisateur ou mot de passe incorrect';
+      } else if (error.response?.status === 429) {
+        errorMessage = 'Trop de tentatives. Veuillez réessayer dans quelques minutes.';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setUiState(prev => ({ 
+        ...prev, 
+        error: errorMessage, 
+        success: '', 
+        isLoading: false 
+      }));
     }
-  }, [formData, login, navigate]);
+  }, [formData, login, navigate, determineRedirectRoute]);
 
   const togglePasswordVisibility = useCallback(() => {
     setUiState(prev => ({ ...prev, showPassword: !prev.showPassword }));
@@ -89,6 +254,7 @@ const Login = () => {
             ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700'
             : 'bg-white text-gray-600 hover:bg-gray-100'
         }`}
+        aria-label="Changer le thème"
       >
         {darkMode ? <FaSun className="text-xl" /> : <FaMoon className="text-xl" />}
       </button>
@@ -154,11 +320,12 @@ const Login = () => {
             placeholder="Entrez votre nom d'utilisateur"
             required
             autoComplete="username"
-            className={`w-full p-2 rounded border focus:outline-none focus:ring-1 focus:ring-sky-400 text-sm transition-colors ${
+            disabled={uiState.isLoading}
+            className={`w-full p-2 rounded border focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm transition-all ${
               darkMode
                 ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400'
                 : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-            }`}
+            } ${uiState.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           />
         </div>
 
@@ -178,20 +345,22 @@ const Login = () => {
               placeholder="Entrez votre mot de passe"
               required
               autoComplete="current-password"
-              className={`w-full p-2 pr-10 rounded border focus:outline-none focus:ring-1 focus:ring-sky-400 text-sm transition-colors ${
+              disabled={uiState.isLoading}
+              className={`w-full p-2 pr-10 rounded border focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm transition-all ${
                 darkMode
                   ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400'
                   : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-              }`}
+              } ${uiState.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             />
             <button
               type="button"
               onClick={togglePasswordVisibility}
+              disabled={uiState.isLoading}
               className={`absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none transition-colors ${
                 darkMode
                   ? 'text-gray-400 hover:text-gray-300'
                   : 'text-gray-500 hover:text-gray-700'
-              }`}
+              } ${uiState.isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label={uiState.showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
             >
               {uiState.showPassword ? (
@@ -211,9 +380,11 @@ const Login = () => {
         <button
           type="submit"
           disabled={uiState.isLoading}
-          className={`w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded transition duration-300 flex items-center justify-center ${
-            uiState.isLoading ? 'opacity-75 cursor-not-allowed' : ''
-          }`}
+          className={`w-full font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center ${
+            uiState.isLoading 
+              ? 'bg-gray-400 cursor-not-allowed opacity-75' 
+              : 'bg-sky-600 hover:bg-sky-700 active:bg-sky-800 hover:shadow-lg'
+          } text-white`}
         >
           {uiState.isLoading ? (
             <>
@@ -221,7 +392,7 @@ const Login = () => {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Connexion...
+              Connexion en cours...
             </>
           ) : 'Se connecter'}
         </button>
@@ -231,7 +402,7 @@ const Login = () => {
             Pas encore de compte ?{' '}
             <Link
               to={ROUTES.REGISTER}
-              className={`underline transition duration-200 ${
+              className={`underline transition duration-200 font-medium ${
                 darkMode
                   ? 'text-sky-400 hover:text-sky-300'
                   : 'text-sky-600 hover:text-sky-800'
