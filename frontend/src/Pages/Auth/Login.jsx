@@ -5,7 +5,7 @@ import { FaHome, FaSun, FaMoon } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://marcherpub.onrender.com/api';
 const ROUTES = {
   MINISTERE: '/ministere/home',
   ENTREPRISE: '/entreprise/home',
@@ -51,7 +51,7 @@ const Login = () => {
     setUiState(prev => ({ ...prev, error: '', success: '', isLoading: true }));
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, formData);
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, formData);
       const { token, user, redirectTo } = response.data;
       const userRole = user.role;
 

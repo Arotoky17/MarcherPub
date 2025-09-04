@@ -28,7 +28,7 @@ const GestionCandidatures = () => {
         const token = localStorage.getItem('token');
         
         // Correction: assurez-vous que l'URL correspond à votre backend
-        const res = await axios.get(`${API_BASE_URL}/dashboard/ministere`, {
+        const res = await axios.get(`${API_BASE_URL}/api/dashboard/ministere`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         

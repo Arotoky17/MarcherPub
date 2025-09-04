@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  FaChartLine, 
-  FaUsers, 
-  FaPlusCircle, 
+import {
+  FaChartLine,
+  FaUsers,
+  FaPlusCircle,
   FaSignOutAlt,
   FaFileContract,
   FaClipboardList,
@@ -14,7 +14,7 @@ import {
   FaMoon
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import { api } from '../../api';
 
 const MinistereHome = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const MinistereHome = () => {
           throw new Error('Accès non autorisé');
         }
 
-        await axios.get('/api/auth/verify', {
+        await api.get('/api/auth/verify', {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (error) {
